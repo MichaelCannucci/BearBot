@@ -1,0 +1,2 @@
+# BearBot
+Personal Discord Bot
