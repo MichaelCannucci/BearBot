@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "npx nodemon --require=ts-node src/index.ts",
-    "start-prod": "tsc -p tsconfig.json && node build/index.js",
+    "build": "tsc -p tsconfig.json",
+    "run-prod": "node build/index.js",
     "deploy-commands": "npx ts-node src/scripts/deploy-commands.ts",
     "show-audio": "npx ts-node src/scripts/dependency-report.ts",
     "watch": "tsc -p tsconfig.json -w",
