@@ -9,4 +9,6 @@ const execute = async (interaction: CommandInteraction) => {
     await interaction.reply('Pong!');
 }
 
-export default {info, execute };
+export default {info, executors: {
+    command: execute 
+}};

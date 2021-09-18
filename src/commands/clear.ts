@@ -41,5 +41,7 @@ const isGuildTextChannel = (channel: TextBasedChannels): channel is TextChannel 
 
 export default {
     info,
-    execute
+    executors: {
+        command: execute
+    }
 }
