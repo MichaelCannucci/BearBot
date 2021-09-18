@@ -15,19 +15,15 @@ import {
     Collection,
     CommandInteraction,
     Guild,
-    InteractionCollector,
     MessageActionRow,
     MessageButton,
-    MessageComponentInteraction,
     Snowflake,
     StageChannel,
-    TextBasedChannels,
     User,
     VoiceChannel
 } from "discord.js";
 import { SlashCommandBuilder } from "@discordjs/builders";
-import * as ytdl from "ytdl-core";
-import { channel } from "diagnostics_channel";
+const ytdl = require("ytdl-core");
 
 const playerCollection = new Collection<Snowflake, AudioPlayer>();
 
