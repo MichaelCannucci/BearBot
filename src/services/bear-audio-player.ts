@@ -15,7 +15,7 @@ const playerCollection = new Collection<Snowflake, BearAudioPlayer>();
 type YoutubeLink = string & { type: "yt" };
 
 class BearAudioPlayer {
-  songQueue: YoutubeLink[];
+  songQueue: YoutubeLink[] = [];
   currentSong: YoutubeLink;
   audioPlayer: AudioPlayer;
   connection: VoiceConnection;
@@ -28,7 +28,7 @@ class BearAudioPlayer {
       (_oldState: AudioPlayerState, newState: AudioPlayerState) => {
         if (newState.status === AudioPlayerStatus.Idle) {
           const song = this.songQueue.pop();
-          this.audioPlayer.play(getAudioResource(song));
+          this.startSong(song);
         }
       }
     );
@@ -36,6 +36,8 @@ class BearAudioPlayer {
   play(url: YoutubeLink) {
     if (url === this.currentSong) {
       this.audioPlayer.unpause();
+    } else if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
+      this.startSong(url);
     }
     this.songQueue.push(url);
   }
@@ -44,6 +46,11 @@ class BearAudioPlayer {
   }
   stop() {
     this.audioPlayer.stop();
+  }
+  private startSong = (song: YoutubeLink): void => {
+    this.connection.subscribe(this.audioPlayer);
+    this.audioPlayer.play(getAudioResource(song));
+    this.currentSong = song;
   }
 }
 
@@ -65,5 +72,5 @@ export const getPlayer = (guild: Guild, connection: VoiceConnection) => {
 };
 
 export const isYoutubeLink = (url: string): url is YoutubeLink => {
-  return !/http(s)?:\/\/www.youtube.com\/.*/.test(url);
+  return /http(s)?:\/\/www.youtube.com\/.*/.test(url);
 };
