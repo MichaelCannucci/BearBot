@@ -65,21 +65,30 @@ const handleButton = async (interaction: ButtonInteraction) => {
     .then(async (voiceChannel) => {
       const connection = getConnection(voiceChannel);
       const player = getPlayer(voiceChannel.guild, connection);
-      if (!isYoutubeLink(context.url)) {
-        await interaction.deferUpdate();
-        return;
-      }
       if (isPlayButton(context)) {
+        if (!isYoutubeLink(context.url)) {
+          console.log(`Failed link: ${context.url}`);
+          await interaction.reply({content: "Link no longer valid", ephemeral: true});
+          return;
+        }
         player.play(context.url);
+        await interaction.reply({content: "Playing", ephemeral: true});
       } else if (isPauseButton(context)) {
         player.pause();
+        await interaction.reply({content: "Pausing", ephemeral: true});
       } else if (isStopButton(context)) {
         player.stop();
+        await interaction.reply({content: "Stopping", ephemeral: true});
+      } else {
+        await interaction.reply({content: "Unrecognized action", ephemeral: true});
       }
-      await interaction.deferUpdate();
     })
     .catch(async (exception) => {
-      await interaction.reply({ content: exception, ephemeral: true });
+      if(typeof exception !== "string") {
+        console.error(exception);
+        exception = "Unexpected error occured";
+      }
+      await interaction.reply({content: exception, ephemeral: true});
     });
 };
 
