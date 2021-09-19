@@ -5,6 +5,7 @@ import commands from "../commands";
 
 const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
 
+console.log(`deploying for ${process.env.GUILD_ID || "All"}`);
 console.log(`deploying: ${commands.map((x) => x.info.name).join(",")}`);
 
 (async () => {
