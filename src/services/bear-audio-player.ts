@@ -12,7 +12,7 @@ import ytdl from "ytdl-core";
 
 const playerCollection = new Collection<Snowflake, BearAudioPlayer>();
 
-type YoutubeLink = string & { type: "yt" };
+export type YoutubeLink = string & { type: "yt" };
 
 class BearAudioPlayer {
   songQueue: YoutubeLink[] = [];
@@ -47,11 +47,14 @@ class BearAudioPlayer {
   stop() {
     this.audioPlayer.stop();
   }
+  getCurrentSong(): YoutubeLink {
+    return this.currentSong;
+  }
   private startSong = (song: YoutubeLink): void => {
     this.connection.subscribe(this.audioPlayer);
     this.audioPlayer.play(getAudioResource(song));
     this.currentSong = song;
-  }
+  };
 }
 
 const getAudioResource = (url: string): AudioResource<null> => {

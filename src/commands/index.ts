@@ -4,7 +4,10 @@ import clear from "./clear";
 import ping from "./ping";
 import play from "./play";
 
-type Command = { info: SlashCommandBuilder; executor: (interaction: CommandInteraction) => void; };
+type Command = {
+  info: SlashCommandBuilder;
+  executor: (interaction: CommandInteraction) => void;
+};
 
 const commands: Command[] = [ping, play, clear];
 
