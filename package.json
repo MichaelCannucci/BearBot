@@ -30,7 +30,7 @@
     "ytdl-core": "^4.9.1"
   },
   "engines": {
-    "node": "16.9.2"
+    "node": "16.x"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
