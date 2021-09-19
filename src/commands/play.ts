@@ -31,11 +31,7 @@ const execute = async (interaction: CommandInteraction) => {
       const player = getPlayer(voiceChannel.guild, getConnection(voiceChannel));
       await player.play(url);
       await interaction.reply({
-        content:
-          player.status === AudioPlayerStatus.Buffering ||
-          player.status === AudioPlayerStatus.Idle
-            ? `Now Playing: ${url}`
-            : `Adding to queue`,
+        content: player.empty ? `Now Playing: ${url}` : `Adding to queue`,
       });
     })
     .catch(async (exception) => {

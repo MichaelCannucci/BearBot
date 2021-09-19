@@ -4,6 +4,7 @@ import clear from "./clear";
 import pause from "./pause";
 import ping from "./ping";
 import play from "./play";
+import queue from "./show-queue";
 import stop from "./stop";
 import unpause from "./unpause";
 
@@ -12,6 +13,6 @@ type Command = {
   executor: (interaction: CommandInteraction) => void;
 };
 
-const commands: Command[] = [ping, play, pause, stop, unpause, clear];
+const commands: Command[] = [ping, play, pause, stop, unpause, queue, clear];
 
 export default commands;

@@ -40,14 +40,17 @@ class BearAudioPlayer {
       }
     );
   }
-  get currentSong() {
+  get currentSong(): YoutubeInfo | undefined {
     return this._currentSong;
   }
-  get songQueue() {
+  get songQueue(): YoutubeInfo[] {
     return this._songQueue;
   }
-  get status() {
-    return this._audioPlayer.state.status;
+  get empty(): boolean {
+    return (
+      this._audioPlayer.state.status === AudioPlayerStatus.Idle &&
+      this.songQueue.length <= 0
+    );
   }
   async play(url: YoutubeLink) {
     const info = await ytdl.getBasicInfo(url);
@@ -56,7 +59,7 @@ class BearAudioPlayer {
       duration: info.videoDetails.lengthSeconds,
       link: url,
     });
-    if (this._audioPlayer.state.status === AudioPlayerStatus.Idle) {
+    if (this.empty) {
       // Force queue to kick off
       this._audioPlayer.emit(
         "stateChange",
