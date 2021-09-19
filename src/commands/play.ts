@@ -2,6 +2,7 @@ import { CommandInteraction } from "discord.js";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { getPlayer, isYoutubeLink } from "../services/bear-audio-player";
 import { getConnection, getVoiceChannel } from "../helper";
+import { AudioPlayerStatus } from "@discordjs/voice";
 
 const info = new SlashCommandBuilder();
 info
@@ -15,7 +16,7 @@ info
   );
 
 const execute = async (interaction: CommandInteraction) => {
-  if (!interaction.guild.available) return;
+  if (!interaction?.guild?.available) return;
   const { guild, user } = interaction;
   const url = interaction.options.getString("input", true);
   if (!isYoutubeLink(url)) {
@@ -28,9 +29,13 @@ const execute = async (interaction: CommandInteraction) => {
   getVoiceChannel(guild, user)
     .then(async (voiceChannel) => {
       const player = getPlayer(voiceChannel.guild, getConnection(voiceChannel));
-      player.play(url);
+      await player.play(url);
       await interaction.reply({
-        content: `Now Playing: ${url}`,
+        content:
+          player.status === AudioPlayerStatus.Buffering ||
+          player.status === AudioPlayerStatus.Idle
+            ? `Now Playing: ${url}`
+            : `Adding to queue`,
       });
     })
     .catch(async (exception) => {

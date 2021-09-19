@@ -20,9 +20,9 @@ info
   );
 
 const execute = async (interaction: CommandInteraction) => {
-  const target = interaction.options.getUser("target");
+  const target = interaction.options.getUser("target")!;
   const channel = interaction.channel;
-  if (!channel.isText()) {
+  if (!channel || !channel.isText()) {
     interaction.reply({ content: "Not in a text channel", ephemeral: true });
     return;
   }
@@ -30,7 +30,7 @@ const execute = async (interaction: CommandInteraction) => {
     interaction.reply({ content: "Not in server", ephemeral: true });
     return;
   }
-  let fetched: Collection<string, Message>;
+  let fetched: Collection<string, Message> = new Collection();
   do {
     let fetched = await channel.messages.fetch({
       limit: 100,

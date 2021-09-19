@@ -14,50 +14,80 @@ const playerCollection = new Collection<Snowflake, BearAudioPlayer>();
 
 export type YoutubeLink = string & { type: "yt" };
 
-class BearAudioPlayer {
-  songQueue: YoutubeLink[] = [];
-  currentSong: YoutubeLink;
-  audioPlayer: AudioPlayer;
-  connection: VoiceConnection;
+export type YoutubeInfo = {
+  name: string;
+  duration: string;
+  link: YoutubeLink;
+};
 
-  constructor(audioPlayer: AudioPlayer, connection: VoiceConnection) {
-    this.audioPlayer = audioPlayer;
-    this.connection = connection;
-    this.audioPlayer.on(
+class BearAudioPlayer {
+  private _songQueue: YoutubeInfo[] = [];
+  private _currentSong?: YoutubeInfo;
+  private _audioPlayer: AudioPlayer;
+  private _connection?: VoiceConnection;
+
+  constructor(audioPlayer: AudioPlayer) {
+    this._audioPlayer = audioPlayer;
+    this._audioPlayer.on(
       "stateChange",
       (_oldState: AudioPlayerState, newState: AudioPlayerState) => {
         if (newState.status === AudioPlayerStatus.Idle) {
-          const song = this.songQueue.pop();
-          this.startSong(song);
+          const song = this._songQueue.pop();
+          if (song) {
+            this.startSong(song);
+          }
         }
       }
     );
   }
-  play(url: YoutubeLink) {
-    if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
-      this.startSong(url);
+  get currentSong() {
+    return this._currentSong;
+  }
+  get songQueue() {
+    return this._songQueue;
+  }
+  get status() {
+    return this._audioPlayer.state.status;
+  }
+  async play(url: YoutubeLink) {
+    const info = await ytdl.getBasicInfo(url);
+    this._songQueue.push({
+      name: info.videoDetails.title,
+      duration: info.videoDetails.lengthSeconds,
+      link: url,
+    });
+    if (this._audioPlayer.state.status === AudioPlayerStatus.Idle) {
+      // Force queue to kick off
+      this._audioPlayer.emit(
+        "stateChange",
+        { status: AudioPlayerStatus.Idle },
+        { status: AudioPlayerStatus.Idle }
+      );
     }
-    this.songQueue.push(url);
   }
   pause() {
-    this.audioPlayer.pause();
+    this._audioPlayer.pause();
   }
   stop() {
-    this.audioPlayer.stop();
+    this._audioPlayer.stop();
   }
   unpause() {
-    this.audioPlayer.unpause();
+    this._audioPlayer.unpause();
   }
-  getQueue() {
-    return this.songQueue;
+  getState(): AudioPlayerStatus {
+    return this._audioPlayer.state.status;
   }
-  getCurrentSong(): YoutubeLink {
-    return this.currentSong;
+  withConnection(connection: VoiceConnection): this {
+    this._connection = connection;
+    return this;
   }
-  private startSong = (song: YoutubeLink): void => {
-    this.connection.subscribe(this.audioPlayer);
-    this.audioPlayer.play(getAudioResource(song));
-    this.currentSong = song;
+  private startSong = (song: YoutubeInfo): void => {
+    if (!this._connection) {
+      throw new Error("no active connection for this player");
+    }
+    this._connection.subscribe(this._audioPlayer);
+    this._audioPlayer.play(getAudioResource(song.link));
+    this._currentSong = song;
   };
 }
 
@@ -68,14 +98,15 @@ const getAudioResource = (url: YoutubeLink): AudioResource<null> => {
   return createAudioResource(video);
 };
 
-export const getPlayer = (guild: Guild, connection: VoiceConnection) => {
+export const getPlayer = (guild: Guild, connection?: VoiceConnection) => {
   if (!playerCollection.has(guild.id)) {
-    playerCollection.set(
-      guild.id,
-      new BearAudioPlayer(createAudioPlayer(), connection)
-    );
+    playerCollection.set(guild.id, new BearAudioPlayer(createAudioPlayer()));
   }
-  return playerCollection.get(guild.id);
+  const player = playerCollection.get(guild.id)!; // we set it in the collection
+  if (connection) {
+    player.withConnection(connection);
+  }
+  return player;
 };
 
 export const isYoutubeLink = (url: string): url is YoutubeLink => {
