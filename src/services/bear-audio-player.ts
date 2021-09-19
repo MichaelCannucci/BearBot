@@ -34,9 +34,7 @@ class BearAudioPlayer {
     );
   }
   play(url: YoutubeLink) {
-    if (url === this.currentSong) {
-      this.audioPlayer.unpause();
-    } else if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
+    if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
       this.startSong(url);
     }
     this.songQueue.push(url);
@@ -46,6 +44,12 @@ class BearAudioPlayer {
   }
   stop() {
     this.audioPlayer.stop();
+  }
+  unpause() {
+    this.audioPlayer.unpause();
+  }
+  getQueue() {
+    return this.songQueue;
   }
   getCurrentSong(): YoutubeLink {
     return this.currentSong;
