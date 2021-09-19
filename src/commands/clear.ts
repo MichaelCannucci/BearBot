@@ -13,7 +13,6 @@ const info = new SlashCommandBuilder()
   .setDescription("Clear messages from the bot");
 
 const execute = async (interaction: CommandInteraction) => {
-  console.debug(interaction.client);
   const target = interaction.client.user!;
   const channel = interaction.channel;
   if (!channel || !channel.isText()) {
