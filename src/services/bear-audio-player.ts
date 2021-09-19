@@ -61,7 +61,7 @@ class BearAudioPlayer {
   };
 }
 
-const getAudioResource = (url: string): AudioResource<null> => {
+const getAudioResource = (url: YoutubeLink): AudioResource<null> => {
   const video = ytdl(url, {
     filter: "audioonly",
   });
