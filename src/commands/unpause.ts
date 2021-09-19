@@ -8,7 +8,7 @@ const info = new SlashCommandBuilder()
   .setDescription("Unpause current song");
 
 const execute = async (interaction: CommandInteraction) => {
-  if (!interaction.guild.available) return;
+  if (!interaction?.guild?.available) return;
   const { guild, user } = interaction;
   getVoiceChannel(guild, user)
     .then(async (voiceChannel) => {

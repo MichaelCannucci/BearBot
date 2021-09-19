@@ -20,6 +20,9 @@ export const getConnection = (
     connection.on(
       VoiceConnectionStatus.Disconnected,
       async (_oldState, _newState) => {
+        if (!connection) {
+          return;
+        }
         try {
           await Promise.race([
             entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
