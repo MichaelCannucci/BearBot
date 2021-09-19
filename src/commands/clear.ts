@@ -8,19 +8,13 @@ import {
   TextChannel,
 } from "discord.js";
 
-const info = new SlashCommandBuilder();
-info
+const info = new SlashCommandBuilder()
   .setName("clear")
-  .setDescription("Clear messages from a user")
-  .addUserOption((option) =>
-    option
-      .setName("target")
-      .setDescription("Who to delete messages from")
-      .setRequired(true)
-  );
+  .setDescription("Clear messages from the bot");
 
 const execute = async (interaction: CommandInteraction) => {
-  const target = interaction.options.getUser("target")!;
+  console.debug(interaction.client);
+  const target = interaction.client.user!;
   const channel = interaction.channel;
   if (!channel || !channel.isText()) {
     interaction.reply({ content: "Not in a text channel", ephemeral: true });
