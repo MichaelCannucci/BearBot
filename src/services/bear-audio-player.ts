@@ -6,7 +6,6 @@ import {
   createAudioPlayer,
   createAudioResource,
   VoiceConnection,
-  VoiceConnectionStatus,
 } from "@discordjs/voice";
 import { Collection, Guild, Snowflake } from "discord.js";
 import ytdl from "ytdl-core";
@@ -26,7 +25,7 @@ class BearAudioPlayer {
     this.connection = connection;
     this.audioPlayer.on(
       "stateChange",
-      (oldState: AudioPlayerState, newState: AudioPlayerState) => {
+      (_oldState: AudioPlayerState, newState: AudioPlayerState) => {
         if (newState.status === AudioPlayerStatus.Idle) {
           const song = this.songQueue.pop();
           this.audioPlayer.play(getAudioResource(song));

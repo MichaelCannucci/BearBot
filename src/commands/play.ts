@@ -1,13 +1,8 @@
 import {
   VoiceConnectionStatus,
-  createAudioPlayer,
-  createAudioResource,
   getVoiceConnection,
   joinVoiceChannel,
-  AudioPlayerStatus,
-  AudioResource,
   VoiceConnection,
-  AudioPlayer,
   entersState,
 } from "@discordjs/voice";
 import {
@@ -22,7 +17,10 @@ import {
 } from "discord.js";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { getPlayer, isYoutubeLink } from "../services/bear-audio-player";
-const ytdl = require("ytdl-core");
+
+type PlayButton = { id: "play"; command: string; url: string };
+type PauseButton = { id: "pause"; command: string };
+type StopButton = { id: "stop"; command: string };
 
 const info = new SlashCommandBuilder();
 info
@@ -97,7 +95,7 @@ const getConnection = (
     });
     connection.on(
       VoiceConnectionStatus.Disconnected,
-      async (oldState, newState) => {
+      async (_oldState, _newState) => {
         try {
           await Promise.race([
             entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
@@ -135,7 +133,7 @@ const getVoiceChannel = async (
 
 const isPlayButton = (
   context: any
-): context is { id: "play"; command: string; url: string } => {
+): context is PlayButton => {
   return (
     context.id === "play" &&
     typeof context.command === "string" &&
@@ -145,13 +143,13 @@ const isPlayButton = (
 
 const isPauseButton = (
   context: any
-): context is { id: "pause"; command: string } => {
+): context is PauseButton => {
   return context.id === "pause" && typeof context.command === "string";
 };
 
 const isStopButton = (
   context: any
-): context is { id: "stop"; command: string } => {
+): context is StopButton => {
   return context.id === "stop" && typeof context.command === "string";
 };
 
