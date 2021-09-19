@@ -5,16 +5,12 @@ import ping from "./ping";
 import play from "./play";
 
 export type Executors = {
-    command?: (interaction: CommandInteraction) => void,
-    button?: (interaction: ButtonInteraction) => void
-}
+  command?: (interaction: CommandInteraction) => void;
+  button?: (interaction: ButtonInteraction) => void;
+};
 
-type Command = { info: SlashCommandBuilder, executors: Executors };
+type Command = { info: SlashCommandBuilder; executors: Executors };
 
-const commands: Command[] = [
-    ping,
-    play,
-    clear
-]
+const commands: Command[] = [ping, play, clear];
 
 export default commands;
