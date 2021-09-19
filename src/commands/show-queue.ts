@@ -13,12 +13,13 @@ const execute = async (interaction: CommandInteraction) => {
   getVoiceChannel(guild, user)
     .then(async (voiceChannel) => {
       const player = getPlayer(voiceChannel.guild);
+      const nowPlayingName = player.currentSong?.name ?? "N/A";
       const queueEmbed = new MessageEmbed()
         .setColor("DARK_NAVY")
         .setTitle("Audio Player Queue")
         .addField(
-          player.currentSong?.name ?? "No song is playing",
-          player.currentSong?.link ?? ""
+          `Now Playing: ${nowPlayingName}`,
+          player.currentSong?.link ?? "N/A"
         )
         .addFields(
           player.songQueue.map((info, index) => {
