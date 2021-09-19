@@ -6,7 +6,7 @@ import {
   CommandInteraction,
   Intents,
 } from "discord.js";
-import commands, { Executors } from "./commands";
+import commands from "./commands";
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES],
@@ -21,37 +21,22 @@ client.once("ready", () => {
 });
 client.login(process.env.TOKEN);
 
-const collection = new Collection<string, Executors>();
+const collection = new Collection<string, (interaction: CommandInteraction) => void>();
 commands.forEach((command) => {
-  collection.set(command.info.name, command.executors);
+  collection.set(command.info.name, command.executor);
 });
 
 client.on("interactionCreate", async (interaction) => {
-  // Probably an better way to do this
-  if (interaction.isCommand()) {
-    try {
-      const command = collection.get(interaction.commandName).command;
-      await command(interaction);
-    } catch (error) {
-      console.error(error);
-      await interaction.reply({
-        content: "There was an error while executing this command!",
-        ephemeral: true,
-      });
-    }
-  } else if (interaction.isButton()) {
-    try {
-      const context = JSON.parse(interaction.customId);
-      if (hasCommandConext(context)) {
-        const command = collection.get(context.command).button;
-        await command(interaction);
-      }
-    } catch (error) {
-      console.error(error);
-      await interaction.reply({
-        content: "There was an error while executing this command!",
-        ephemeral: true,
-      });
-    }
-  }
+	if (!interaction.isCommand()) return;
+
+	const command = collection.get(interaction.commandName);
+
+	if (!command) return;
+
+	try {
+		await command(interaction);
+	} catch (error) {
+		console.error(error);
+		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+	}
 });

@@ -49,7 +49,5 @@ const isGuildTextChannel = (
 
 export default {
   info,
-  executors: {
-    command: execute,
-  },
+  executor: execute
 };

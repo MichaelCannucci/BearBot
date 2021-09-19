@@ -197,8 +197,5 @@ const getPlayerButtons = (url: string): MessageActionRow => {
 
 export default {
   info,
-  executors: {
-    command: handleCommand,
-    button: handleButton,
-  },
+  executor: handleCommand
 };

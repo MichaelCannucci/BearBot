@@ -11,7 +11,5 @@ const execute = async (interaction: CommandInteraction) => {
 
 export default {
   info,
-  executors: {
-    command: execute,
-  },
+  executor: execute,
 };
