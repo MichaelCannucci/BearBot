@@ -54,12 +54,13 @@ class BearAudioPlayer {
   }
   async play(url: YoutubeLink) {
     const info = await ytdl.getBasicInfo(url);
+    const shouldStart = this.empty;
     this._songQueue.push({
       name: info.videoDetails.title,
       duration: info.videoDetails.lengthSeconds,
       link: url,
     });
-    if (this.empty) {
+    if (shouldStart) {
       // Force queue to kick off
       this._audioPlayer.emit(
         "stateChange",

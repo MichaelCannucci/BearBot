@@ -29,9 +29,12 @@ const execute = async (interaction: CommandInteraction) => {
   getVoiceChannel(guild, user)
     .then(async (voiceChannel) => {
       const player = getPlayer(voiceChannel.guild, getConnection(voiceChannel));
+      const message = player.empty
+        ? `Now Playing: ${url}`
+        : `Adding ${url} to queue`;
       await player.play(url);
       await interaction.reply({
-        content: player.empty ? `Now Playing: ${url}` : `Adding to queue`,
+        content: message,
       });
     })
     .catch(async (exception) => {
