@@ -19,6 +19,14 @@ commands.forEach((command) => {
   collection.set(command.info.name, command.executor);
 });
 
+process.on("unhandledRejection", async (error) => {
+  console.error(error);
+});
+
+process.on("uncaughtException", async (error) => {
+  console.error(error);
+});
+
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
 
