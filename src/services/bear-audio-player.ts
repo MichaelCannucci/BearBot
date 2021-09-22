@@ -53,7 +53,9 @@ class BearAudioPlayer {
     );
   }
   async play(url: YoutubeLink) {
-    const info = await ytdl.getBasicInfo(url);
+    const info = await ytdl.getBasicInfo(url, {
+      requestOptions: getRequestHeaders(),
+    });
     const shouldStart = this.empty;
     this._songQueue.push({
       name: info.videoDetails.title,
@@ -98,8 +100,20 @@ class BearAudioPlayer {
 const getAudioResource = (url: YoutubeLink): AudioResource<null> => {
   const video = ytdl(url, {
     filter: "audioonly",
+    requestOptions: getRequestHeaders(),
   });
   return createAudioResource(video);
+};
+
+const getRequestHeaders = () => {
+  return process.env.YT_COOKIE && process.env.YT_ID
+    ? {
+        headers: {
+          cookie: process.env.YT_COOKIE,
+          "x-youtube-identity-token": process.env.YT_ID,
+        },
+      }
+    : {};
 };
 
 export const getPlayer = (guild: Guild, connection?: VoiceConnection) => {
