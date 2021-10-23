@@ -80,6 +80,10 @@ class BearAudioPlayer {
   unpause() {
     this._audioPlayer.unpause();
   }
+  force(song: YoutubeInfo) {
+    this._songQueue = [];
+    this.startSong(song);
+  }
   getState(): AudioPlayerStatus {
     return this._audioPlayer.state.status;
   }
@@ -128,5 +132,5 @@ export const getPlayer = (guild: Guild, connection?: VoiceConnection) => {
 };
 
 export const isYoutubeLink = (url: string): url is YoutubeLink => {
-  return /http(s)?:\/\/www.youtube.com\/.*/.test(url);
+  return /(http(s)?)?:\/\/(www.youtube.com|youtu.be)\/.*/.test(url);
 };

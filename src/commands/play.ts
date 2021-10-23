@@ -11,7 +11,7 @@ info
   .addStringOption((option) =>
     option
       .setName("input")
-      .setDescription("Youtube Link with the song")
+      .setDescription("Youtube link with the song")
       .setRequired(true)
   );
 
