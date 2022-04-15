@@ -33,13 +33,10 @@
     "node": "16.x"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.21",
-    "@types/mocha": "^9.0.0",
-    "chai": "^4.3.4",
-    "mocha": "^9.1.1",
+    "@types/jest": "^27.4.1",
+    "jest": "^27.5.1",
     "nodemon": "^2.0.12",
     "prettier": "2.4.1",
-    "ts-mockito": "^2.6.1",
     "ts-node": "^10.2.1"
   }
 }
