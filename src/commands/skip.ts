@@ -14,7 +14,7 @@ const execute = async (interaction: CommandInteraction) => {
     .then(async (voiceChannel) => {
       const player = getPlayer(voiceChannel.guild, getConnection(voiceChannel));
       player.stop();
-      await interaction.reply({ content: `Pausing`, ephemeral: true });
+      await interaction.reply({ content: `Skipping..`, ephemeral: true });
     })
     .catch(async (exception) => {
       await interaction.reply({ content: exception, ephemeral: true });
