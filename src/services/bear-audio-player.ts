@@ -1,49 +1,73 @@
 import {
   AudioPlayer,
-  AudioPlayerState,
   AudioPlayerStatus,
   AudioResource,
   createAudioPlayer,
-  createAudioResource,
   VoiceConnection,
 } from "@discordjs/voice";
 import { Collection, Guild, Snowflake } from "discord.js";
-import ytdl from "ytdl-core";
+import { getYoutubeAudioResource, getYoutubeMetadata, YoutubeLink } from "./youtube";
 
-const playerCollection = new Collection<Snowflake, BearAudioPlayer>();
+const playerCollection = new Collection<Snowflake, BearAudioPlayer<YoutubeLink>>();
 
-export type YoutubeLink = string & { type: "yt" };
-
-export type YoutubeInfo = {
+type SongInfo<T> = {
   name: string;
   duration: string;
-  link: YoutubeLink;
-};
+  uri: T;
+}
 
-class BearAudioPlayer {
-  private _songQueue: YoutubeInfo[] = [];
-  private _currentSong?: YoutubeInfo;
-  private _audioPlayer: AudioPlayer;
+const isSongInfo = (info: unknown): info is SongInfo<any> => {
+  if(typeof info != 'object') {
+    return false;
+  }
+  return "name" in (info as object) && "duration" in (info as object)
+}
+
+export type MetadataFetcher<T> = (uri: T) => Promise<SongInfo<T>>
+export type SongFetcher<T> = (uri: T, config?: { durationInMili: number }) => AudioResource
+
+class BearAudioPlayer<SongUri> {
+  private _songQueue: SongInfo<SongUri>[] = [];
+  private _currentSong?: SongInfo<SongUri>;
+
   private _connection?: VoiceConnection;
 
-  constructor(audioPlayer: AudioPlayer) {
+  private _audioPlayer: AudioPlayer;
+  private _metadataFetcher: MetadataFetcher<SongUri>;
+  private _songFetcher: SongFetcher<SongUri>;
+
+  constructor(
+    audioPlayer: AudioPlayer, 
+    metadataFetcher: MetadataFetcher<SongUri>,
+    songFetcher: SongFetcher<SongUri>
+  ) {
     this._audioPlayer = audioPlayer;
-    this._audioPlayer.on(
-      "stateChange",
-      (_oldState: AudioPlayerState, newState: AudioPlayerState) => {
-        if (newState.status === AudioPlayerStatus.Idle) {
-          const song = this._songQueue.pop();
-          if (song) {
-            this.startSong(song);
-          }
+    this._metadataFetcher = metadataFetcher;
+    this._songFetcher = songFetcher;
+
+    this._audioPlayer.on(AudioPlayerStatus.Idle, () => {
+        console.log("Player is Idle")
+        const info = this._songQueue.pop();
+        if (info) {
+          console.log("Loading new song");
+          this.play(info.uri);
         }
       }
     );
+    this._audioPlayer.on("error", error => {
+      console.log(error)
+      if(this.currentSong) {
+        const resource = this._songFetcher(this.currentSong.uri, {
+          durationInMili: error.resource.playbackDuration
+        })
+        this.loadSong(this.currentSong, resource)
+      }
+    })
   }
-  get currentSong(): YoutubeInfo | undefined {
+  get currentSong(): SongInfo<SongUri> | undefined {
     return this._currentSong;
   }
-  get songQueue(): YoutubeInfo[] {
+  get songQueue(): SongInfo<SongUri>[] {
     return this._songQueue;
   }
   get empty(): boolean {
@@ -52,23 +76,14 @@ class BearAudioPlayer {
       this.songQueue.length <= 0
     );
   }
-  async play(url: YoutubeLink) {
-    const info = await ytdl.getBasicInfo(url, {
-      requestOptions: getRequestHeaders(),
-    });
-    const shouldStart = this.empty;
-    this._songQueue.push({
-      name: info.videoDetails.title,
-      duration: info.videoDetails.lengthSeconds,
-      link: url,
-    });
-    if (shouldStart) {
-      // Force queue to kick off
-      this._audioPlayer.emit(
-        "stateChange",
-        { status: AudioPlayerStatus.Idle },
-        { status: AudioPlayerStatus.Idle }
-      );
+  async play(uri: SongInfo<SongUri>);
+  async play(uri: SongUri);
+  async play(uri: unknown) {
+    const info: SongInfo<SongUri> = isSongInfo(uri) ? uri : await this._metadataFetcher(uri as SongUri)
+    if(this.empty) {
+      this.loadSong(info, this._songFetcher(info.uri))
+    } else {
+      this._songQueue.push(info)
     }
   }
   pause() {
@@ -76,61 +91,41 @@ class BearAudioPlayer {
   }
   stop() {
     this._audioPlayer.stop();
+    this._songQueue = [];
   }
   unpause() {
     this._audioPlayer.unpause();
   }
-  force(song: YoutubeInfo) {
-    this._songQueue = [];
-    this.startSong(song);
-  }
   getState(): AudioPlayerStatus {
     return this._audioPlayer.state.status;
   }
-  withConnection(connection: VoiceConnection): this {
+  updateConnection(connection: VoiceConnection): this {
     this._connection = connection;
     return this;
   }
-  private startSong = (song: YoutubeInfo): void => {
+  private loadSong = (info: SongInfo<SongUri>, resource: AudioResource): void => {
     if (!this._connection) {
       throw new Error("no active connection for this player");
     }
     this._connection.subscribe(this._audioPlayer);
-    this._audioPlayer.play(getAudioResource(song.link));
-    this._currentSong = song;
+    this._audioPlayer.play(resource);
+    this._currentSong = info;
   };
 }
 
-const getAudioResource = (url: YoutubeLink): AudioResource<null> => {
-  const video = ytdl(url, {
-    filter: "audioonly",
-    requestOptions: getRequestHeaders(),
-  });
-  return createAudioResource(video);
-};
-
-const getRequestHeaders = () => {
-  return process.env.YT_COOKIE && process.env.YT_ID
-    ? {
-        headers: {
-          cookie: process.env.YT_COOKIE,
-          "x-youtube-identity-token": process.env.YT_ID,
-        },
-      }
-    : {};
-};
-
 export const getPlayer = (guild: Guild, connection?: VoiceConnection) => {
   if (!playerCollection.has(guild.id)) {
-    playerCollection.set(guild.id, new BearAudioPlayer(createAudioPlayer()));
+    // Only youtube for now
+    playerCollection.set(guild.id, new BearAudioPlayer<YoutubeLink>(
+        createAudioPlayer(), 
+        getYoutubeMetadata,
+        getYoutubeAudioResource,
+      )
+    );
   }
-  const player = playerCollection.get(guild.id)!; // we set it in the collection
+  const player = playerCollection.get(guild.id)!;
   if (connection) {
-    player.withConnection(connection);
+    player.updateConnection(connection);
   }
   return player;
-};
-
-export const isYoutubeLink = (url: string): url is YoutubeLink => {
-  return /(http(s)?)?:\/\/(www.youtube.com|youtu.be)\/.*/.test(url);
 };
