@@ -10,7 +10,7 @@ import { getYoutubeAudioResource, getYoutubeMetadata, YoutubeLink } from "./yout
 
 const playerCollection = new Collection<Snowflake, BearAudioPlayer<YoutubeLink>>();
 
-type SongInfo<T> = {
+export type SongInfo<T> = {
   name: string;
   duration: string;
   uri: T;

@@ -6,7 +6,7 @@ import { MetadataFetcher, SongFetcher } from "./bear-audio-player";
 
 export const isYoutubeLink = (url: string): url is YoutubeLink => {
     return ytdl.validateURL(url);
-  };
+};
 
 const getRequestHeaders = () => {
 return process.env.YT_COOKIE && process.env.YT_ID
@@ -26,6 +26,10 @@ export const youtubeSearch = async (query: string): Promise<YoutubeLink|false> =
         return result.url
     }
     return false
+}
+
+export const youtubePlaylistIterator = async (id: string) => {
+
 }
 
 export const getYoutubeAudioResource: SongFetcher<YoutubeLink> = (url, config) => {
