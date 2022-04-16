@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { channel } from "diagnostics_channel";
 import {
   Collection,
   CommandInteraction,
+  DiscordAPIError,
   Message,
-  TextBasedChannels,
+  TextBasedChannel,
   TextChannel,
 } from "discord.js";
 
@@ -24,18 +24,18 @@ const execute = async (interaction: CommandInteraction) => {
     return;
   }
   let fetched: Collection<string, Message> = new Collection();
-  do {
-    let fetched = await channel.messages.fetch({
-      limit: 100,
-    });
-    fetched = fetched.filter((msg) => msg.author.id === target.id);
-    channel.bulkDelete(fetched);
-  } while (fetched && fetched.size >= 2);
-  await interaction.reply({ content: "Done!", ephemeral: true });
+    do {
+      let fetched = await channel.messages.fetch({
+        limit: 100,
+      });
+      fetched = fetched.filter((msg) => msg.author.id === target.id);
+      channel.bulkDelete(fetched);
+    } while (fetched && fetched.size >= 2);
+    await interaction.reply({ content: "Done!", ephemeral: true });
 };
 
 const isGuildTextChannel = (
-  channel: TextBasedChannels
+  channel: TextBasedChannel
 ): channel is TextChannel => {
   return channel.type === "GUILD_TEXT";
 };
