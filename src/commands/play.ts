@@ -34,7 +34,8 @@ const execute = async (interaction: CommandInteraction) => {
       const player = getPlayer(voiceChannel.guild, getConnection(voiceChannel));
       const playListId = params.get("list") ?? ""
       if(ytpl.validateID(playListId)) {
-        const pages = await ytpl(playListId, { pages: Infinity })
+        // TODO: Properly pull all results
+        const pages = await ytpl(playListId)
         pages.items.forEach(value => {
           if(!isYoutubeLink(value.url)) {
             return;

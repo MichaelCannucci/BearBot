@@ -44,12 +44,12 @@ class BearAudioPlayer<SongUri> {
     this._audioPlayer = audioPlayer;
     this._metadataFetcher = metadataFetcher;
     this._songFetcher = songFetcher;
-
+    this._audioPlayer.on("stateChange", (state) => {
+      console.log(state.status)
+    })
     this._audioPlayer.on(AudioPlayerStatus.Idle, () => {
-        console.log("Player is Idle")
         const info = this._songQueue.pop();
         if (info) {
-          console.log("Loading new song");
           this.play(info.uri);
         }
       }
