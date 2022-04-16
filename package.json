@@ -5,11 +5,11 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "node build/index.js",
-    "build": "tsc -p tsconfig.json",
-    "dev": "npx nodemon --require=ts-node src/index.ts",
-    "deploy-commands": "npx ts-node src/scripts/deploy-commands.ts",
+    "build": "ttsc -p tsconfig.json",
+    "dev": "ts-node --compiler ttypescript src/index.ts",
+    "deploy-commands": "npx ts-node --compiler ttypescript src/scripts/deploy-commands.ts",
     "show-audio": "npx ts-node src/scripts/dependency-report.ts",
-    "watch": "tsc -p tsconfig.json -w",
+    "watch": "ttsc -p tsconfig.json -w",
     "test": "mocha -r ts-node/register \"tests/**/*.spec.ts\""
   },
   "author": "Michael Cannucci (MichaelCannucci@gmail.com)",
@@ -26,8 +26,11 @@
     "ffmpeg-static": "^4.4.0",
     "opusscript": "^0.0.8",
     "sodium": "^3.0.2",
+    "ts-type-checked": "^0.6.5",
+    "ttypescript": "^1.5.13",
     "typescript": "^4.4.3",
-    "ytdl-core": "^4.9.1"
+    "ytdl-core": "^4.9.1",
+    "ytsr": "^3.7.0"
   },
   "engines": {
     "node": "16.x"

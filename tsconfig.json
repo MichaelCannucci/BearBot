@@ -15,7 +15,10 @@
     "importHelpers": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["es2017", "esnext.asynciterable"],
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "plugins": [
+      { "transform": "ts-type-checked/transformer" }
+    ]
   },
   "exclude": ["node_modules"]
 }
