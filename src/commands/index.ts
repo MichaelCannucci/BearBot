@@ -7,7 +7,6 @@ import play from "./play";
 import queue from "./show-queue";
 import stop from "./stop";
 import unpause from "./unpause";
-import force from "./force";
 
 type Command = {
   info: SlashCommandBuilder;
@@ -21,8 +20,7 @@ const commands: Command[] = [
   stop,
   unpause,
   queue,
-  clear,
-  force,
+  clear
 ];
 
 export default commands;
