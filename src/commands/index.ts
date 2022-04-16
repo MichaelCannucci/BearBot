@@ -25,7 +25,6 @@ const commands: Command[] = [
   queue,
   clear,
   search,
-  clear,
   clearQueue,
   skip
 ];
