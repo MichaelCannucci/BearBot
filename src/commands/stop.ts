@@ -5,7 +5,7 @@ import { getConnection, getVoiceChannel } from "../helper";
 
 const info = new SlashCommandBuilder()
   .setName("stop")
-  .setDescription("Stop currently playing song");
+  .setDescription("Stop currently playing song and reset queue");
 
 const execute = async (interaction: CommandInteraction) => {
   if (!interaction?.guild?.available) return;
