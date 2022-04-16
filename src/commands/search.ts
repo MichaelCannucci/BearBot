@@ -21,13 +21,13 @@ const execute = async (interaction: CommandInteraction) => {
   const query = interaction.options.getString("input", true);
   getVoiceChannel(guild, user)
     .then(async (voiceChannel) => {
-      const uri = await youtubeSearch(query)
-      if(uri) {
+      const info = await youtubeSearch(query)
+      if(info) {
         const player = getPlayer(voiceChannel.guild, getConnection(voiceChannel));
         const message = player.empty
-          ? `Now Playing: ${uri}`
-          : `Adding ${uri} to queue`;
-        await player.play(uri);
+          ? `Now Playing: ${info.uri}`
+          : `Adding to queue: ${info.uri}`;
+        await player.play(info);
         await interaction.reply({
           content: message,
         });
