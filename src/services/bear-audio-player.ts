@@ -91,6 +91,9 @@ class BearAudioPlayer<SongUri> {
   }
   stop() {
     this._audioPlayer.stop();
+  }
+  reset() {
+    this._audioPlayer.stop();
     this._songQueue = [];
   }
   unpause() {
