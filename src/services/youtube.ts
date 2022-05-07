@@ -32,19 +32,13 @@ export const youtubeSearch = async (query: string): Promise<SongInfo<YoutubeLink
     return false
 }
 
-export const youtubePlaylistIterator = async (id: string) => {
-
-}
-
 export const getYoutubeAudioResource: SongFetcher<YoutubeLink> = (url, config) => {
     const video = ytdl(url, {
-        filter: "audioonly",
         requestOptions: getRequestHeaders(),
         begin: (config?.durationInMili || 0) + "ms"
     });
     return createAudioResource(video);
 };
-
 
 export const getYoutubeMetadata: MetadataFetcher<YoutubeLink> = async (url) => {
     const info = await ytdl.getBasicInfo(url, {
